@@ -323,21 +323,21 @@ with col_map:
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: left;">
                 <!-- Kolom 2015 -->
                 <div>
-                    <b>📅 2015</b><br>
+                    <b>2015</b><br>
                     <span style="display: inline-block; width: 12px; height: 12px; background: #4B8BBE; margin-right: 6px;"></span>Air<br>
                     <span style="display: inline-block; width: 12px; height: 12px; background: #2E8B57; margin-right: 6px;"></span>Darat<br>
                     <span style="display: inline-block; width: 12px; height: 12px; background: #DC143C; margin-right: 6px;"></span>Darat di Konservasi
                 </div>
                 <!-- Kolom 2020 -->
                 <div>
-                    <b>📅 2020</b><br>
+                    <b>2020</b><br>
                     <span style="display: inline-block; width: 12px; height: 12px; background: #306998; margin-right: 6px;"></span>Air<br>
                     <span style="display: inline-block; width: 12px; height: 12px; background: #228B22; margin-right: 6px;"></span>Darat<br>
                     <span style="display: inline-block; width: 12px; height: 12px; background: #B22222; margin-right: 6px;"></span>Darat di Konservasi
                 </div>
                 <!-- Kolom 2025 -->
                 <div>
-                    <b>📅 2025</b><br>
+                    <b>2025</b><br>
                     <span style="display: inline-block; width: 12px; height: 12px; background: #FFE873; margin-right: 6px;"></span>Air<br>
                     <span style="display: inline-block; width: 12px; height: 12px; background: #8B4513; margin-right: 6px;"></span>Darat<br>
                     <span style="display: inline-block; width: 12px; height: 12px; background: #8B0000; margin-right: 6px;"></span>Darat di Konservasi
