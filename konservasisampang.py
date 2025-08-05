@@ -218,11 +218,11 @@ folium.TileLayer(
     max_zoom=19
 ).add_to(m)
 
-folium.TileLayer(
-    tiles='https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-    attr='OpenTopoMap',
-    name='Topographic'
-).add_to(m)
+# folium.TileLayer(
+#     tiles='https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+#     attr='OpenTopoMap',
+#     name='Topographic'
+# ).add_to(m)
 
 # --- Tambahkan Kawasan Konservasi (sudah dipotong) ---
 folium.GeoJson(
