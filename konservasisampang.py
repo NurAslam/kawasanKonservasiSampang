@@ -315,32 +315,32 @@ col_map, col_stats = st.columns([6, 4])
 with col_map:
     st_folium(m, width="100%", height=1000)
 
-# --- LEGENDA ---
+    # --- LEGENDA dengan KOTAK WARNA ---
     st.markdown(
         """
-        <div style="background-color: rgba(255, 255, 255, 0.9); padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-family: Arial; font-size: 14px;">
-            <b>🎨 Legenda Warna (per Tahun)</b><br><br>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                <!-- 2015 -->
+        <div style="background-color: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 10px; border: 1px solid #ddd; font-family: Arial; font-size: 14px;">
+            <b>🎨 Legenda Warna (Per Tahun)</b><br><br>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: left;">
+                <!-- Kolom 2015 -->
                 <div>
-                    <b>2015</b><br>
-                    <span style="color: #4B8BBE;">●</span> Air: #4B8BBE<br>
-                    <span style="color: #2E8B57;">●</span> Darat: #2E8B57<br>
-                    <span style="color: #DC143C;">●</span> Darat di Konservasi: #DC143C
+                    <b>📅 2015</b><br>
+                    <span style="display: inline-block; width: 12px; height: 12px; background: #4B8BBE; margin-right: 6px;"></span>Air<br>
+                    <span style="display: inline-block; width: 12px; height: 12px; background: #2E8B57; margin-right: 6px;"></span>Darat<br>
+                    <span style="display: inline-block; width: 12px; height: 12px; background: #DC143C; margin-right: 6px;"></span>Darat di Konservasi
                 </div>
-                <!-- 2020 -->
+                <!-- Kolom 2020 -->
                 <div>
-                    <b>2020</b><br>
-                    <span style="color: #306998;">●</span> Air: #306998<br>
-                    <span style="color: #228B22;">●</span> Darat: #228B22<br>
-                    <span style="color: #B22222;">●</span> Darat di Konservasi: #B22222
+                    <b>📅 2020</b><br>
+                    <span style="display: inline-block; width: 12px; height: 12px; background: #306998; margin-right: 6px;"></span>Air<br>
+                    <span style="display: inline-block; width: 12px; height: 12px; background: #228B22; margin-right: 6px;"></span>Darat<br>
+                    <span style="display: inline-block; width: 12px; height: 12px; background: #B22222; margin-right: 6px;"></span>Darat di Konservasi
                 </div>
-                <!-- 2025 -->
+                <!-- Kolom 2025 -->
                 <div>
-                    <b>2025</b><br>
-                    <span style="color: #FFE873;">●</span> Air: #FFE873<br>
-                    <span style="color: #8B4513;">●</span> Darat: #8B4513<br>
-                    <span style="color: #8B0000;">●</span> Darat di Konservasi: #8B0000
+                    <b>📅 2025</b><br>
+                    <span style="display: inline-block; width: 12px; height: 12px; background: #FFE873; margin-right: 6px;"></span>Air<br>
+                    <span style="display: inline-block; width: 12px; height: 12px; background: #8B4513; margin-right: 6px;"></span>Darat<br>
+                    <span style="display: inline-block; width: 12px; height: 12px; background: #8B0000; margin-right: 6px;"></span>Darat di Konservasi
                 </div>
             </div>
         </div>
