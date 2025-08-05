@@ -7,31 +7,26 @@ from folium import GeoJsonPopup, GeoJsonTooltip
 from streamlit_folium import st_folium
 import json
 import ee
-import geemap  # Pastikan ini diimpor langsung
+import geemap  
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(
     page_title="Peta Sampang",
     layout="wide",
-    initial_sidebar_state="collapsed"  # Sembunyikan sidebar
+    initial_sidebar_state="expanded"  # Sembunyikan sidebar
 )
 
-# --- Sembunyikan Elemen UI Streamlit ---
-hide_streamlit_style = """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    [data-testid="stToolbar"] {visibility: hidden;}
-    .block-container {padding-top: 0rem; padding-bottom: 0rem; padding-left: 0rem; padding-right: 0rem;}
-    iframe {height: 100vh !important; width: 100vw !important; border: none !important;}
-    body, html {margin: 0; padding: 0; background: #000; overflow: hidden;}
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-# --- Judul Aplikasi ---
-st.title("🌿 Informasi Kawasan Konservasi & Perubahan Pesisir di Sampang, Madura")
-
+st.markdown(
+    """
+    <h1 style='text-align: center; margin-top: 0; padding-top: 1rem;'>
+        🌊 Perubahan Pesisir & Kawasan Konservasi di Sampang, Madura
+    </h1>
+    <p style='text-align: center; color: #aaa; margin-bottom: 1.5rem;'>
+        Analisis perubahan wilayah air dan darat (2015–2025) berdasarkan NDWI dari Sentinel-2
+    </p>
+    """,
+    unsafe_allow_html=True
+)
 # --- Inisialisasi Google Earth Engine ---
 @st.cache_resource
 def init_ee():
@@ -48,12 +43,11 @@ def init_ee():
         st.stop()
 init_ee()
 
-# --- Baca Data SHP: Kawasan Konservasi ---
 @st.cache_data
 def load_shp_data():
     try:
         gdf = gpd.read_file("./Kawasan_Konservasi/Kawasan_Konservasi.shp")
-        roi_bounds = (113.35, -7.22, 113.38, -7.19)  # Wilayah Sampang
+        roi_bounds = (113.35, -7.22, 113.38, -7.19)
         roi_box = gpd.GeoDataFrame(geometry=[gpd.GeoSeries.from_xy([roi_bounds[0]], [roi_bounds[1]], crs=4326).envelope[0]], crs=4326)
         roi_box = roi_box.to_crs(gdf.crs).geometry.iloc[0]
         gdf_roi = gdf[gdf.intersects(roi_box)]
@@ -68,39 +62,88 @@ if konservasi_roi is None or len(konservasi_roi) == 0:
     st.warning("Tidak ada data kawasan konservasi di wilayah Sampang atau file tidak ditemukan.")
     st.stop()
 
-# --- Hitung Pusat Peta ---
 centroids = konservasi_roi.geometry.centroid
 center_lat = centroids.y.mean()
 center_lon = centroids.x.mean()
 
-# --- Kolom untuk Popup dan Tooltip ---
 columns_to_show = ['NAMOBJ', 'KODKWS', 'JNSRPR', 'WKLPR', 'REMARK', 'LUASHA']
-
 gdf_display = konservasi_roi.copy()
 if 'LUASHA' in gdf_display.columns:
     gdf_display['LUASHA'] = pd.to_numeric(gdf_display['LUASHA'], errors='coerce')
-
 for col in gdf_display.columns:
     if col != 'geometry':
         gdf_display[col] = gdf_display[col].astype(str).replace('<NA>', '').replace('nan', '-')
 
-# --- Buat Peta Folium ---
+@st.cache_data
+def compute_area_stats(year):
+    try:
+        roi_ee = ee.Geometry.Rectangle([113.35, -7.22, 113.38, -7.19])
+        collection = (ee.ImageCollection("COPERNICUS/S2_HARMONIZED")
+                      .filterDate(f'{year}-01-01', f'{year}-12-31')
+                      .filterBounds(roi_ee)
+                      .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 10)))
+
+        image = collection.median()
+        ndwi = image.normalizedDifference(['B3', 'B11'])
+        water_mask = ndwi.gt(0)
+        land_mask = ndwi.lte(0)
+
+        # Hitung luas (m² → ha)
+        pixel_area = ee.Image.pixelArea()
+        water_area_m2 = water_mask.multiply(pixel_area).reduceRegion(
+            reducer=ee.Reducer.sum(),
+            geometry=roi_ee,
+            scale=10,
+            maxPixels=1e10
+        )
+        land_area_m2 = land_mask.multiply(pixel_area).reduceRegion(
+            reducer=ee.Reducer.sum(),
+            geometry=roi_ee,
+            scale=10,
+            maxPixels=1e10
+        )
+
+        water_area_ha = water_area_m2.get('nd').getInfo() / 10000 if water_area_m2.get('nd').getInfo() else 0
+        land_area_ha = land_area_m2.get('nd').getInfo() / 10000 if land_area_m2.get('nd').getInfo() else 0
+
+        return water_area_ha, land_area_ha
+    except:
+        return None, None
+
+# --- Hitung Statistik untuk Tahun Target ---
+target_years = [2015, 2020, 2025]
+area_data = []
+
+for year in target_years:
+    water_ha, land_ha = compute_area_stats(year)
+    area_data.append({
+        "Tahun": year,
+        "Luas Air (Ha)": round(water_ha, 2) if water_ha else 0,
+        "Luas Darat (Ha)": round(land_ha, 2) if land_ha else 0
+    })
+
+df_stats = pd.DataFrame(area_data)
+
+
 m = folium.Map(
     location=[center_lat, center_lon],
     zoom_start=14,
     tiles=None
 )
 
-# --- Tambahkan Base Layers ---
+
 folium.TileLayer('OpenStreetMap', name='OpenStreetMap').add_to(m)
 
-# ✅ URL Esri yang benar (tanpa spasi)
-folium.TileLayer(
-    tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attr='Esri, Maxar, Earthstar Geographics, FAO, NOAA, USGS, OpenStreetMap contributors',
-    name='Satellite (Esri)',
-    max_zoom=19
-).add_to(m)
+# Gunakan alternatif jika Esri error 400
+try:
+    folium.TileLayer(
+        tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attr='Esri',
+        name='Satellite (Esri)',
+        max_zoom=19
+    ).add_to(m)
+except:
+    pass
 
 folium.TileLayer(
     tiles='https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
@@ -108,110 +151,83 @@ folium.TileLayer(
     name='Topographic'
 ).add_to(m)
 
-# --- Tambahkan Kawasan Konservasi ---
+
 tooltip = GeoJsonTooltip(
     fields=['NAMOBJ', 'KODKWS', 'LUASHA'],
-    aliases=['Nama Kawasan:', 'Kode:', 'Luas (Ha):'],
+    aliases=['Nama:', 'Kode:', 'Luas (Ha):'],
     localize=True,
-    sticky=False,
-    labels=True,
-    style="""
-        background-color: #F0F0F0;
-        border: 1px solid black;
-        border-radius: 3px;
-        padding: 5px;
-        font-family: 'courier new';
-        font-size: 14px;
-    """
+    style="background-color: white; border: 1px solid black;"
 )
 
 popup = GeoJsonPopup(
     fields=columns_to_show,
-    aliases=[col.replace('_', ' ') for col in columns_to_show],
+    aliases=[c.replace('_', ' ') for c in columns_to_show],
     localize=True,
     labels=True,
-    style="background-color: #F9F871; padding: 10px; border-radius: 5px; font-family: Arial; font-size: 13px;",
-    max_width=300
+    style="background-color: #F9F871; font-size: 13px; padding: 8px;"
 )
 
 folium.GeoJson(
     konservasi_roi,
     name='Kawasan Konservasi',
-    style_function=lambda x: {
-        'fillColor': '#32CD32',
-        'color': '#228B22',
-        'weight': 2,
-        'fillOpacity': 0.4
-    },
+    style_function=lambda x: {'fillColor': '#32CD32', 'color': '#228B22', 'weight': 2, 'fillOpacity': 0.4},
     tooltip=tooltip,
     popup=popup
 ).add_to(m)
 
-# --- Analisis GEE: Wilayah Air (2015, 2020, 2025) ---
-target_years = [2015, 2020, 2024]
-roi_ee = ee.Geometry.Rectangle([113.35, -7.22, 113.38, -7.19])
 
-# Warna berbeda untuk tiap tahun
-colors = {
-    2015: '#4B8BBE',  # Biru muda
-    2020: '#306998',  # Biru tua
-    2024: '#FFE873'   # Kuning (untuk perubahan terkini)
-}
+colors_water = {2015: '#4B8BBE', 2020: '#306998', 2025: '#FFE873'}
+colors_land = {2015: '#2E8B57', 2020: '#228B22', 2025: '#8B4513'}
+
+roi_ee = ee.Geometry.Rectangle([113.35, -7.22, 113.38, -7.19])
 
 for year in target_years:
     try:
-        # Filter citra Sentinel-2
         collection = (ee.ImageCollection("COPERNICUS/S2_HARMONIZED")
                       .filterDate(f'{year}-01-01', f'{year}-12-31')
                       .filterBounds(roi_ee)
                       .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 10)))
-
         image = collection.median().clip(roi_ee)
-        ndwi = image.normalizedDifference(['B3', 'B11']).rename('NDWI')
-        water_mask = ndwi.gt(0)
+        ndwi = image.normalizedDifference(['B3', 'B11'])
 
-        # Mask dan vektorisasi
+        # Mask air dan darat
+        water_mask = ndwi.gt(0)
+        land_mask = ndwi.lte(0)
+
         binary_water = water_mask.updateMask(water_mask)
-        water_vectors = binary_water.reduceToVectors(
-            geometry=roi_ee,
-            scale=10,
-            geometryType='polygon',
-            crs='EPSG:4326',
-            maxPixels=1e10
-        )
+        binary_land = land_mask.updateMask(land_mask)
+
+        water_vectors = binary_water.reduceToVectors(geometry=roi_ee, scale=10, maxPixels=1e10, crs='EPSG:4326')
+        land_vectors = binary_land.reduceToVectors(geometry=roi_ee, scale=10, maxPixels=1e10, crs='EPSG:4326')
 
         # Konversi ke GeoJSON
         water_geojson = geemap.ee_to_geojson(water_vectors)
+        land_geojson = geemap.ee_to_geojson(land_vectors)
 
         # Tambahkan ke peta
-        folium.GeoJson(
-            water_geojson,
-            name=f'Air (Tahun {year})',
-            style_function=lambda x, col=colors[year]: {
-                'color': col,
-                'weight': 1.8,
-                'fillOpacity': 0.5,
-                'fillColor': col
-            },
-            tooltip=f"Wilayah Air - {year}"
-        ).add_to(m)
+        folium.GeoJson(water_geojson, name=f'Air ({year})', style_function=lambda x, c=colors_water[year]: {
+            'color': c, 'weight': 1.8, 'fillOpacity': 0.5, 'fillColor': c}).add_to(m)
+
+        folium.GeoJson(land_geojson, name=f'Darat ({year})', style_function=lambda x, c=colors_land[year]: {
+            'color': c, 'weight': 1.8, 'fillOpacity': 0.4, 'fillColor': c}).add_to(m)
 
     except Exception as e:
-        st.warning(f"Gagal proses GEE untuk tahun {year}: {e}")
+        st.warning(f"Gagal proses vektor untuk tahun {year}: {e}")
 
-# --- Tambahkan Layer Control dan Klik Koordinat ---
+
 folium.LayerControl(collapsed=False).add_to(m)
-folium.LatLngPopup().add_to(m)  # Klik untuk lihat koordinat
+folium.LatLngPopup().add_to(m)
 
-# --- Tampilkan Peta di Streamlit ---
-st_data = st_folium(m, width="100%", height=1000)
+col_map, col_stats = st.columns([6, 4])
 
-# --- Ekspor Data Kawasan Konservasi ---
-with st.expander("📥 Ekspor Data Kawasan di Sampang"):
-    geojson_data = json.loads(konservasi_roi.to_json())
-    st.download_button(
-        label="Download sebagai GeoJSON",
-        data=json.dumps(geojson_data, indent=2),
-        file_name="kawasan_konservasi_sampang.geojson",
-        mime="application/json"
-    )
+with col_map:
+    st_folium(m, width="100%", height=800)
+
+with col_stats:
+    st.subheader("📊 Statistik Perubahan Wilayah")
+    st.dataframe(df_stats, use_container_width=True)
+
+    st.markdown("### 📈 Tren Perubahan")
+    if len(df_stats) > 1:
+        df_stats.set_index("Tahun", inplace=True)
+        st.line_chart(df_stats)
