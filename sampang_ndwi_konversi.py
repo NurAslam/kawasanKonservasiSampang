@@ -34,15 +34,18 @@ st.title("🌿 Informasi Kawasan Konservasi & Perubahan Pesisir di Sampang, Madu
 
 # --- Inisialisasi Google Earth Engine ---
 @st.cache_resource
-@st.cache_resource
 def init_ee():
-    testing = "testing-460608"
-
     try:
-        ee.Initialize(project=testing)
-    except:
-        ee.Authenticate()
-        ee.Initialize(project=testing)
+        # Cek apakah ada secrets (di Streamlit Cloud)
+        service_account = st.secrets["EE_SERVICE_ACCOUNT"]
+        private_key = st.secrets["EE_PRIVATE_KEY"]
+
+        credentials = ee.ServiceAccountCredentials(service_account, key_data=private_key)
+        ee.Initialize(credentials)
+        print("✅ GEE: Berhasil login dengan Service Account")
+    except Exception as e:
+        st.error("Gagal login ke Google Earth Engine. Pastikan secrets sudah benar.")
+        st.stop()
 init_ee()
 
 # --- Baca Data SHP: Kawasan Konservasi ---
