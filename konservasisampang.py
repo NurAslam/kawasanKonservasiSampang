@@ -166,8 +166,6 @@ df_stats = pd.DataFrame(stats_data)
 # --- Buat Peta ---
 m = folium.Map(location=[center_lat, center_lon], zoom_start=14, tiles=None)
 
-m.get_root().html.add_child(folium.Element(legend_html))
-
 # --- Base Layers ---
 folium.TileLayer('OpenStreetMap', name='OpenStreetMap').add_to(m)
 
