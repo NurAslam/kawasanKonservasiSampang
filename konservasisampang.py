@@ -164,7 +164,49 @@ stats_data = [compute_area_stats(year) for year in target_years]
 df_stats = pd.DataFrame(stats_data)
 
 # --- Buat Peta ---
+# --- Buat Peta ---
 m = folium.Map(location=[center_lat, center_lon], zoom_start=14, tiles=None)
+
+# --- Tambahkan Legenda Kustom ---
+legend_html = '''
+<div style="
+    position: fixed; 
+    bottom: 50px; 
+    left: 50px; 
+    width: 220px; 
+    height: auto; 
+    background-color: white; 
+    border:2px solid grey; 
+    z-index: 9999; 
+    font-size:14px;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    font-family: Arial, sans-serif;
+">
+    <b style="font-size: 16px; margin-bottom: 10px; display: block; text-align: center;">Legenda Peta</b>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background-color: #FFD700; border: 1.5px solid #FF8C00;"></div>
+            <span>Kawasan Konservasi</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background-color: #4B8BBE; border: 1px solid #306998; opacity: 0.6;"></div>
+            <span>Wilayah Air</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background-color: #2E8B57; border: 1px solid #228B22; opacity: 0.6;"></div>
+            <span>Wilayah Darat</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background-color: #DC143C; border: 1px solid #8B0000; opacity: 0.7;"></div>
+            <span>Darat di Konservasi</span>
+        </div>
+    </div>
+</div>
+'''
+
+m.get_root().html.add_child(folium.Element(legend_html))
 
 # --- Base Layers ---
 folium.TileLayer('OpenStreetMap', name='OpenStreetMap').add_to(m)
