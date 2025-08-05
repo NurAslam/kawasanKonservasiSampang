@@ -280,8 +280,6 @@ with col_stats:
     st.subheader("📈 Luas Darat di Kawasan Konservasi")
     st.bar_chart(df_stats.set_index("Tahun")[["Darat di Konservasi (Ha)"]])
 
-    Tentu, berikut adalah kode biasa (tanpa format markdown) untuk menampilkan insight dari data statistik satu per satu menggunakan `st.expander`:
-
     st.subheader("🔍 Insight dari Data")
     
 
