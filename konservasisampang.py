@@ -279,3 +279,32 @@ with col_stats:
 
     st.subheader("📈 Luas Darat di Kawasan Konservasi")
     st.bar_chart(df_stats.set_index("Tahun")[["Darat di Konservasi (Ha)"]])
+
+    st.subheader("🔍 Insight dari Data")
+
+    insights = [
+        "🌊 **Wilayah air menyusut, darat bertambah**\n"
+        "Dalam 10 tahun (2015–2025), luas air berkurang 5,17 Ha, sementara darat bertambah 5,17 Ha. "
+        "Ini menunjukkan konversi langsung dari air ke darat, kemungkinan akibat reklamasi atau sedimentasi.",
+
+        "🌳 **Darat di kawasan konservasi meningkat tajam**\n"
+        "Luas darat di dalam kawasan konservasi naik dari 7,69 Ha (2015) menjadi 12,83 Ha (2025). "
+        "Padahal kawasan ini seharusnya terlindungi — ini indikasi kuat adanya aktivitas manusia atau perubahan lingkungan yang signifikan.",
+
+        "🏗️ **Indikasi aktivitas manusia**\n"
+        "Peningkatan darat di konservasi bisa disebabkan oleh perluasan tambak, reklamasi, atau penambangan laut. "
+        "Perlu verifikasi lapangan dan kajian tata ruang pesisir.",
+
+        "⚠️ **Potensi ancaman ekologis**\n"
+        "Pertumbuhan darat di konservasi bisa merusak ekosistem pesisir seperti mangrove dan lamun, "
+        "serta mengurangi fungsi alami sebagai penahan gelombang dan abrasi.",
+
+        "📈 **Laju perubahan semakin cepat**\n"
+        "Pertambahan darat di konservasi lebih cepat di periode 2020–2025 (+3,13 Ha) dibanding 2015–2020 (+2,01 Ha). "
+        "Artinya: perubahan sedang mempercepat."
+    ]
+
+    # Tampilkan satu per satu dengan expander
+    for i, insight in enumerate(insights, 1):
+        with st.expander(f"💡 Insight {i}"):
+            st.markdown(insight)
