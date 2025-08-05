@@ -286,22 +286,21 @@ with col_stats:
     insights = [
         "🌊 <b>Wilayah air menyusut, darat bertambah</b><br>"
         "Dalam 10 tahun (2015–2025), luas air berkurang 5,17 Ha, sementara darat bertambah 5,17 Ha. "
-        "Ini menunjukkan konversi langsung dari air ke darat, kemungkinan akibat reklamasi atau sedimentasi.",
+        "Ini menunjukkan konversi langsung dari air ke darat, kemungkinan akibat reklamasi atau sedimentasi.<br><br>",
     
         "🌳 <b>Darat di kawasan konservasi meningkat tajam</b><br>"
         "Luas darat di dalam kawasan konservasi naik dari 7,69 Ha (2015) menjadi 12,83 Ha (2025). "
-        "Padahal kawasan ini seharusnya terlindungi — ini indikasi kuat adanya aktivitas manusia atau perubahan lingkungan yang signifikan.",
+        "Padahal kawasan ini seharusnya terlindungi — ini indikasi kuat adanya aktivitas manusia atau perubahan lingkungan yang signifikan.<br><br>",
     
         "🏗️ <b>Indikasi aktivitas manusia</b><br>"
         "Peningkatan darat di konservasi bisa disebabkan oleh perluasan tambak, reklamasi, atau penambangan laut. "
-        "Perlu verifikasi lapangan dan kajian tata ruang pesisir.",
+        "Perlu verifikasi lapangan dan kajian tata ruang pesisir.<br><br>",
     
         "📈 <b>Laju perubahan semakin cepat</b><br>"
         "Pertambahan darat di konservasi lebih cepat di periode 2020–2025 (+3,13 Ha) dibanding 2015–2020 (+2,01 Ha). "
         "Artinya: perubahan sedang mempercepat."
     ]
-
-# Tampilkan satu per satu dengan expander
-    for i, insight in enumerate(insights, 1):
-        with st.expander(f"💡 Insight {i}"):
-            st.markdown(insight, unsafe_allow_html=True)
+    
+    # Tampilkan semuanya langsung tanpa expander
+    for insight in insights:
+        st.markdown(insight, unsafe_allow_html=True)
