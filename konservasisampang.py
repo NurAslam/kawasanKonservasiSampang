@@ -318,7 +318,7 @@ with col_map:
     # --- LEGENDA dengan KOTAK WARNA ---
     st.markdown(
         """
-        <div style="background-color: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 10px; border: 1px solid #ddd; font-family: Arial; font-size: 14px;">
+        <div style="padding: 15px; border-radius: 10px; border: 1px solid #ddd; font-family: Arial; font-size: 14px;">
             <b>🎨 Legenda Warna (Per Tahun)</b><br><br>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: left;">
                 <!-- Kolom 2015 -->
