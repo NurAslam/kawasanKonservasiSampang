@@ -227,7 +227,28 @@ with col_stats:
     st.subheader("📊 Statistik Perubahan Wilayah")
     st.dataframe(df_stats, use_container_width=True)
 
-    st.markdown("### 📈 Tren Perubahan")
-    if len(df_stats) > 1:
-        df_stats.set_index("Tahun", inplace=True)
-        st.line_chart(df_stats)
+    st.markdown("### 📝 Interpretasi Hasil")
+    st.markdown("""
+    Berdasarkan data Grafik:
+
+    - **Luas wilayah air menurun** dari **123,27 Ha (2015)** menjadi **118,10 Ha (2025)** → **penurunan 5,17 Ha**.
+    - Sebaliknya, **luas darat meningkat** dari **975,74 Ha** menjadi **980,91 Ha** → **penambahan 5,17 Ha**.
+    - Artinya: **terjadi konversi langsung dari air ke darat**.
+    
+    **Kemungkinan penyebab:**
+    - Reklamasi pesisir
+    - Perluasan tambak atau permukiman
+    - Sedimentasi alami atau aktivitas penambangan laut
+    
+    **Dampak potensial:**
+    - Hilangnya habitat pesisir
+    - Peningkatan risiko banjir
+    - Gangguan ekosistem mangrove atau lamun
+    
+    Perlu pemantauan lebih lanjut dan kajian tata ruang pesisir.
+    """)
+
+    st.info(
+        "⚠️ Perubahan signifikan terjadi di pesisir Sampang. "
+        "Pengelolaan berkelanjutan sangat diperlukan."
+    )
