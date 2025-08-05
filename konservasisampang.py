@@ -271,7 +271,7 @@ folium.LatLngPopup().add_to(m)
 col_map, col_stats = st.columns([6, 4])
 
 with col_map:
-    st_folium(m, width="100%", height="80%")
+    st_folium(m, width="100%", height=1000)
 
 with col_stats:
     st.subheader("📊 Statistik Perubahan Wilayah")
